@@ -124,3 +124,4 @@ inc/
 
 *.exe
 var/
+.aws-sam/

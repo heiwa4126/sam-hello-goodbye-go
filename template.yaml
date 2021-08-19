@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   hello-goodbye-go
-  
+
   Sample SAM Template for hello-goodbye-go
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -19,14 +19,30 @@ Resources:
       Runtime: go1.x
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Events:
-        CatchAll:
+        Hello:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /hello
             Method: GET
+        HelloName:
+          Type: Api
+          Properties:
+            Path: /hello/{name}
+            Method: get
+        Goodbye:
+          Type: Api
+          Properties:
+            Path: /goodbye
+            Method: get
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
+  HelloWorldFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: HelloWorldFunction
+    Properties:
+      RetentionInDays: 7
+      LogGroupName: !Join ["/", ["/aws/lambda", !Ref HelloWorldFunction]]
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

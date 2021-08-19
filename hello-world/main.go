@@ -3,45 +3,32 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-var (
-	// DefaultHTTPGetAddress Default Address
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
+func handler(res events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	// ErrNoIP No IP found in response
-	ErrNoIP = errors.New("No IP in HTTP response")
+	var msg string
 
-	// ErrNon200Response non 200 status code in response
-	ErrNon200Response = errors.New("Non 200 Response found")
-)
+	switch res.Resource {
+	case "": // sam local invoke
+	case "/hello":
+		msg = "hello world!"
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	resp, err := http.Get(DefaultHTTPGetAddress)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
+	case "/hello/{name}":
+		msg = fmt.Sprintf("hello %s!", res.PathParameters["name"])
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
+	case "/goodbye":
+		msg = "goodbye cruel world..."
 
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
+	default:
+		return events.APIGatewayProxyResponse{}, errors.New("oops!")
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
+		Body:       msg,
 		StatusCode: 200,
 	}, nil
 }
