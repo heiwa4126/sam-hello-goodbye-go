@@ -31,3 +31,5 @@ curl http://localhost:3000/goodbye/test
 # TODO
 
 他のトリガ(Cloudwatchのschedule)なども混ぜてみる。
+
+テストをちゃんと書く。
